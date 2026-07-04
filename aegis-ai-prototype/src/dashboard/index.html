@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis-AI | Network Behavior Analysis Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased">
+    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-tight">AEGIS-AI</h1>
+                    <p class="text-xs text-slate-400">Intelligent Network Behavior Analysis</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-medium text-emerald-400">System Online</span>
+                </div>
+                <div class="text-right">
+                    <div id="clock" class="text-sm font-mono text-slate-300">00:00:00</div>
+                    <div id="date" class="text-xs text-slate-500">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[1600px] mx-auto p-4 space-y-4">
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div class="relative">
+                    <p class="text-sm text-slate-400 mb-1">Total Packets</p>
+                    <h3 id="kpi-packets" class="text-2xl font-bold text-white font-mono">0</h3>
+                    <p class="text-xs text-cyan-400 mt-1 flex items-center gap-1">
+                        <span id="kpi-pps">0</span> pkt/s
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div class="relative">
+                    <p class="text-sm text-slate-400 mb-1">Threats Detected</p>
+                    <h3 id="kpi-alerts" class="text-2xl font-bold text-white font-mono">0</h3>
+                    <p class="text-xs text-rose-400 mt-1" id="kpi-alert-rate">0 in last hour</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div class="relative">
+                    <p class="text-sm text-slate-400 mb-1">Active Flows</p>
+                    <h3 id="kpi-flows" class="text-2xl font-bold text-white font-mono">0</h3>
+                    <p class="text-xs text-amber-400 mt-1">Currently tracked</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-violet-500/5 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <div class="relative">
+                    <p class="text-sm text-slate-400 mb-1">Avg Threat Score</p>
+                    <h3 id="kpi-threat" class="text-2xl font-bold text-white font-mono">0.0</h3>
+                    <p class="text-xs text-violet-400 mt-1" id="kpi-threat-trend">Baseline</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                        </svg>
+                        Traffic Volume (Real-Time)
+                    </h3>
+                    <div class="flex gap-2">
+                        <button onclick="app.setChartMetric('packets')" class="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Packets</button>
+                        <button onclick="app.setChartMetric('bytes')" class="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Bytes</button>
+                    </div>
+                </div>
+                <div class="h-64">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    Threat Level Gauge
+                </h3>
+                <div class="h-48 flex items-center justify-center">
+                    <canvas id="threatGauge"></canvas>
+                </div>
+                <div class="mt-2 text-center">
+                    <p id="gauge-label" class="text-lg font-bold text-emerald-400">BENIGN</p>
+                    <p id="gauge-score" class="text-3xl font-mono font-bold text-white mt-1">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts & Distribution -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                        <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        Live Alert Feed
+                    </h3>
+                    <div class="flex gap-2">
+                        <select id="alert-filter" onchange="app.filterAlerts()" class="bg-slate-800 border border-slate-700 text-xs rounded px-2 py-1 text-slate-300">
+                            <option value="all">All Severities</option>
+                            <option value="HIGH RISK / ATTACK">Critical</option>
+                            <option value="MEDIUM RISK">Medium</option>
+                            <option value="LOW RISK">Low</option>
+                        </select>
+                        <button onclick="app.exportAlerts('json')" class="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">JSON</button>
+                        <button onclick="app.exportAlerts('csv')" class="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">CSV</button>
+                    </div>
+                </div>
+                <div class="h-64 overflow-y-auto space-y-2 pr-2" id="alert-feed">
+                    <div class="text-center text-slate-500 py-8 text-sm">No alerts yet. Waiting for traffic...</div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                    </svg>
+                    Attack Distribution
+                </h3>
+                <div class="h-48">
+                    <canvas id="attackChart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <h4 class="text-xs font-semibold text-slate-400 mb-2">Protocol Breakdown</h4>
+                    <div class="h-32">
+                        <canvas id="protocolChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Packet Stream & Top Talkers -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                        <span id="packet-stream-dot" class="pulse-dot"></span>
+                        Live Packet Stream
+                        <span class="text-xs font-normal text-slate-500">— every packet crossing the wire</span>
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <select id="packet-stream-filter" onchange="app.renderPacketStream()" class="bg-slate-800 border border-slate-700 text-xs rounded px-2 py-1 text-slate-300">
+                            <option value="">All Protocols</option>
+                            <option value="TCP">TCP</option>
+                            <option value="UDP">UDP</option>
+                            <option value="ICMP">ICMP</option>
+                        </select>
+                        <button id="packet-stream-toggle" onclick="app.togglePacketStream()" class="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Pause</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto overflow-y-auto" style="max-height: 340px;">
+                    <table class="w-full text-left text-xs">
+                        <thead class="text-[10px] text-slate-400 uppercase bg-slate-800/50 sticky top-0">
+                            <tr>
+                                <th class="px-2 py-1.5 rounded-l-lg">Time</th>
+                                <th class="px-2 py-1.5">Source</th>
+                                <th class="px-2 py-1.5">Destination</th>
+                                <th class="px-2 py-1.5">Proto</th>
+                                <th class="px-2 py-1.5">Len</th>
+                                <th class="px-2 py-1.5">Flags</th>
+                                <th class="px-2 py-1.5 rounded-r-lg">Entropy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="packet-stream-body" class="divide-y divide-slate-800/50">
+                            <tr><td colspan="7" class="px-3 py-8 text-center text-slate-500">Waiting for packets...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2 text-xs text-slate-500" id="packet-stream-count">0 packets buffered</div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                    Top Talkers <span class="text-xs font-normal text-slate-500">(last hour)</span>
+                </h3>
+                <div class="mb-4">
+                    <h4 class="text-xs font-semibold text-slate-400 mb-2">By Source IP (bytes)</h4>
+                    <div id="talkers-sources" class="space-y-2">
+                        <div class="text-xs text-slate-500">No data yet...</div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xs font-semibold text-slate-400 mb-2">By Destination Port</h4>
+                    <div id="talkers-ports" class="space-y-2">
+                        <div class="text-xs text-slate-500">No data yet...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flow Table -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+                <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    Network Flows
+                    <span class="text-xs font-normal text-slate-500">— click a row for full inspection</span>
+                </h3>
+
+                <div class="flex flex-wrap gap-2">
+                    <input type="text" id="filter-src-ip" placeholder="Source IP" class="bg-slate-800 border border-slate-700 text-xs rounded px-3 py-1.5 text-slate-300 w-32">
+                    <input type="text" id="filter-dst-ip" placeholder="Dest IP" class="bg-slate-800 border border-slate-700 text-xs rounded px-3 py-1.5 text-slate-300 w-32">
+                    <select id="filter-protocol" class="bg-slate-800 border border-slate-700 text-xs rounded px-2 py-1.5 text-slate-300">
+                        <option value="">All Protocols</option>
+                        <option value="TCP">TCP</option>
+                        <option value="UDP">UDP</option>
+                        <option value="ICMP">ICMP</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <select id="filter-risk" class="bg-slate-800 border border-slate-700 text-xs rounded px-2 py-1.5 text-slate-300">
+                        <option value="">All Risks</option>
+                        <option value="BENIGN">Benign</option>
+                        <option value="LOW RISK">Low Risk</option>
+                        <option value="MEDIUM RISK">Medium Risk</option>
+                        <option value="HIGH RISK / ATTACK">High Risk</option>
+                    </select>
+                    <button onclick="app.applyFilters()" class="px-3 py-1.5 text-xs rounded bg-cyan-600 hover:bg-cyan-500 text-white transition font-medium">Filter</button>
+                    <button onclick="app.clearFilters()" class="px-3 py-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Clear</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs text-slate-400 uppercase bg-slate-800/50">
+                        <tr>
+                            <th class="px-3 py-2 rounded-l-lg">Time</th>
+                            <th class="px-3 py-2">Source</th>
+                            <th class="px-3 py-2">Destination</th>
+                            <th class="px-3 py-2">Proto</th>
+                            <th class="px-3 py-2">App</th>
+                            <th class="px-3 py-2">Pkts</th>
+                            <th class="px-3 py-2">Bytes</th>
+                            <th class="px-3 py-2">Duration</th>
+                            <th class="px-3 py-2">Attack Type</th>
+                            <th class="px-3 py-2">Indicators</th>
+                            <th class="px-3 py-2">Score</th>
+                            <th class="px-3 py-2 rounded-r-lg">Risk</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flow-table-body" class="divide-y divide-slate-800">
+                        <tr>
+                            <td colspan="12" class="px-3 py-8 text-center text-slate-500">No flows captured yet...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex items-center justify-between mt-3 text-xs text-slate-400">
+                <span id="flow-count">Showing 0 flows</span>
+                <div class="flex gap-2">
+                    <button onclick="app.prevPage()" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-50" id="btn-prev">Previous</button>
+                    <span id="page-info">Page 1</span>
+                    <button onclick="app.nextPage()" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-50" id="btn-next">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                System Configuration
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-2">Alert Threshold: <span id="threshold-value" class="text-cyan-400 font-mono">75</span></label>
+                    <input type="range" id="threshold-slider" min="0" max="100" value="75" 
+                           class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                           oninput="app.updateThreshold(this.value)">
+                    <p class="text-xs text-slate-500 mt-1">Flows scoring above this threshold trigger alerts</p>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-2">Capture Mode</label>
+                    <div class="flex gap-2">
+                        <button onclick="app.setMode('simulation')" id="mode-sim" class="flex-1 px-3 py-2 text-xs rounded bg-cyan-600 text-white font-medium">Simulation</button>
+                        <button onclick="app.setMode('live')" id="mode-live" class="flex-1 px-3 py-2 text-xs rounded bg-slate-800 text-slate-400 hover:bg-slate-700">Live</button>
+                    </div>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button onclick="app.refreshData()" class="flex-1 px-4 py-2 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition border border-slate-700">
+                        Refresh Data
+                    </button>
+                    <button onclick="app.clearAll()" class="flex-1 px-4 py-2 text-xs rounded bg-rose-900/30 hover:bg-rose-900/50 text-rose-400 transition border border-rose-900/30">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-slate-800 mt-8 py-4">
+        <div class="max-w-[1600px] mx-auto px-4 flex items-center justify-between text-xs text-slate-500">
+            <span>Aegis-AI Prototype v1.0 | Confidential</span>
+            <span>Local VM Deployment | SRS v1.0 Compliant</span>
+        </div>
+    </footer>
+
+    <!-- Flow Detail Drawer -->
+    <div id="flow-detail-overlay" class="drawer-overlay" onclick="app.closeFlowDetail()"></div>
+    <div id="flow-detail-panel" class="drawer-panel">
+        <div class="sticky top-0 bg-slate-900 border-b border-slate-800 p-4 flex items-start justify-between z-10">
+            <div>
+                <h3 id="fd-title" class="text-base font-bold text-white font-mono">—</h3>
+                <p id="fd-subtitle" class="text-xs text-slate-500 mt-1">—</p>
+            </div>
+            <button onclick="app.closeFlowDetail()" class="text-slate-400 hover:text-white p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="p-4 space-y-5" id="fd-body">
+            <div class="text-center text-slate-500 py-12 text-sm">Loading flow detail...</div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
