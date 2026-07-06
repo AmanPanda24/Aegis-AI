@@ -4,7 +4,7 @@
 
 ### **Intelligent Network Behavior Analysis System**
 
-*Real-time traffic intelligence · Machine learning threat detection · Layer 2 attack coverage*
+*Real-time traffic intelligence | Machine learning threat detection | Layer 2 attack coverage*
 
 ![Status](https://img.shields.io/badge/status-prototype-orange)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
