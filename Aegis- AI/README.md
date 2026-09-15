@@ -1,18 +1,82 @@
-# Aegis-AI
+<div align="center">
 
-**Intelligent Network Behavior Analysis System** — real-time packet capture, ML-based threat classification, deep packet inspection, and Layer-2 attack detection, behind a live WebSocket dashboard.
+```
+   █████╗ ███████╗ ██████╗ ██╗███████╗       █████╗ ██╗
+  ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝      ██╔══██╗██║
+  ███████║█████╗  ██║  ███╗██║███████╗█████╗███████║██║
+  ██╔══██║██╔══╝  ██║   ██║██║╚════██║╚════╝██╔══██║██║
+  ██║  ██║███████╗╚██████╔╝██║███████║      ██║  ██║██║
+  ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝      ╚═╝  ╚═╝╚═╝
+```
+
+**Intelligent Network Behavior Analysis System**
+Packet Capture · ML Threat Scoring · Deep Packet Inspection · Layer-2 Defense
+
+Python 3.12 · FastAPI (WebSocket + REST) · 57 tests passing · 98.44% held-out accuracy · Docker-ready · MIT License
 
 > SRS v1.0 compliant · local VM / Docker deployment
 
+</div>
+
+---
+
+## 🧭 What Aegis-AI Is (and Isn't)
+
+Aegis-AI is a **research/lab-grade network IDS**: real packet capture, real DPI, real ML trained on real labeled attack data, real Layer-2 rule-based detection — built to demonstrate and exercise the *full pipeline* end-to-end, not just one layer of it. It is not a hardened, production-scale replacement for Suricata, Snort, or Zeek. If you're evaluating this for something more serious than a lab, VM range, coursework, or portfolio project, read this table first.
+
+### How it compares
+
+| Capability | Aegis-AI | Suricata / Snort | Zeek | Wireshark |
+|---|---|---|---|---|
+| Live packet capture | ✅ (scapy) | ✅ (high-perf, DPDK/AF_PACKET) | ✅ | ✅ |
+| ML-based anomaly + classification | ✅ IsolationForest + RandomForest, trained on 243K real flows | ⚠️ not built-in (rule/signature engines) | ⚠️ scriptable, not built-in | ❌ |
+| Deep packet inspection (HTTP/DNS/TLS-SNI) | ✅ real parsing | ✅ (extensive protocol support) | ✅ (extensive protocol support) | ✅ (manual, interactive) |
+| Layer-2 attack detection (ARP/STP/CDP/DTP/VTP) | ✅ dedicated sidecar | ⚠️ limited | ⚠️ limited | ✅ manual only |
+| Signature/rule ecosystem | ❌ none (ML + L2 rules only) | ✅ huge (ET Open, community rules) | ✅ scripting language (Zeek scripts) | n/a |
+| Throughput / production scale | ❌ single-process Python, lab-scale | ✅ line-rate, production-proven | ✅ production-proven | n/a (interactive tool) |
+| Live dashboard out of the box | ✅ WebSocket + charts | ❌ (needs separate SIEM/Kibana) | ❌ (needs separate tooling) | ❌ (packet list only) |
+| Setup cost | `./run.sh`, seconds | moderate (rule tuning, tap/span setup) | moderate–high | trivial, but manual analysis only |
+| Best used as | teaching tool, lab exercise, ML-IDS reference implementation | production perimeter/IDS | production traffic analysis, deep protocol logging | manual packet-level forensics |
+
+### Where Aegis-AI genuinely adds value
+
+- **One pipeline, fully wired.** Capture → features → DPI → ML → L2 rules → scoring → dashboard, all in one readable codebase — useful as a reference for *how* an ML-based IDS pipeline fits together, not just a black box.
+- **Honest ML, not a demo model.** Trained on 243K real labeled flows from three public IDS datasets, with the exact per-class precision/recall reported — including the classes where it's weak (see [ML Models](#ml-models)).
+- **L2 visibility most lab tools skip.** ARP spoofing, MAC flooding, STP/CDP/DTP/VTP, VLAN hopping — attacks with no IP header at all, and therefore invisible to a purely flow-based pipeline.
+
+### What it deliberately doesn't do
+
+- No production-grade throughput or packet-processing performance — this is single-process Python, not a DPDK/kernel-bypass pipeline.
+- No signature/rule ecosystem like Suricata's ET Open or Snort community rules.
+- No claim that its detection thresholds are validated against your specific production network — see the known limitation under [ML Models](#ml-models).
+
+If any of the above changes, this README will be updated to reflect that rather than leaving the claim stale.
+
+---
+
+### Why Aegis-AI?
+
+Most student/portfolio IDS projects fake the hard parts — port-guessing instead of real DPI, synthetic-only training data, an ML pipeline that silently no-ops when a model fails to load. Aegis-AI is built to *not* do that:
+
+- 🧠 **Really trained** on 243K real, labeled flows from three public intrusion-detection datasets — checksummed and bundled in-repo so the claim is verifiable, not just asserted (see [ML Models](#ml-models))
+- 🔍 **Really inspects packets** — HTTP/DNS/TLS-SNI parsed from raw payload bytes, not inferred from port numbers
+- 🛡️ **Sees below IP** — a dedicated Layer-2 sidecar catches ARP spoofing, MAC flooding, STP/CDP/DTP/VTP attacks and VLAN hopping, traffic that's invisible to a flow-based pipeline entirely
+- 🧪 **Audited, not just written** — every bug fix in [Engineering Notes](#engineering-notes) below was reproduced and verified (test, script, or live run), not fixed-and-assumed
+
+
 ## Table of Contents
 
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Architecture](#architecture)
-- [ML Models](#ml-models)
-- [Project Structure](#project-structure)
-- [Deployment / VM Lab](#deployment--vm-lab)
-- [Engineering Notes](#engineering-notes)
+- [🧭 What Aegis-AI Is (and Isn't)](#-what-aegis-ai-is-and-isnt)
+- [Why Aegis-AI?](#why-aegis-ai)
+- [🚀 Features](#features)
+- [⚡ Quick Start](#quick-start)
+- [🏗️ Architecture](#architecture)
+- [🤖 ML Models](#ml-models)
+- [📁 Project Structure](#project-structure)
+- [🧪 Deployment / VM Lab](#deployment--vm-lab)
+- [📓 Engineering Notes](#engineering-notes)
+- [⚠️ Legal Disclaimer](#️-legal-disclaimer)
+- [📄 License](#license)
 
 ---
 
@@ -363,3 +427,30 @@ The dashboard's Clear All button emptied a few local JS arrays and never called 
 
 The rate limiter and API key store are in-process/in-memory — fine for a local prototype or single VM, not a substitute for a real API gateway/secrets manager in a multi-instance production deployment.
 </details>
+
+---
+
+## ⚠️ Legal Disclaimer
+
+Aegis-AI is built for **lab environments, coursework, and authorized security research** — the [Deployment / VM Lab](#deployment--vm-lab) section above describes the intended setup (isolated VMs you control).
+
+- Only run live capture (`capture.mode: live`) against networks and hosts you own or have explicit written permission to monitor.
+- This is a detection/analysis tool, not an exploit tool — it doesn't send attack traffic itself, but running it against a network you don't control to observe real attacker behavior may still violate local law or an AUP.
+- The datasets used for training (CIC-IDS2017, CSE-CIC-IDS2018, CIC-Darknet2020) are lab-captured, third-party research data — see [`data/TRAINING_PROVENANCE.md`](data/TRAINING_PROVENANCE.md) for their provenance and license terms.
+- No warranty of detection accuracy for production traffic — see the known limitation under [ML Models](#ml-models).
+
+---
+
+## 👤 Author
+
+Aman Kumar Panda
+
+---
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).
+
+<div align="center">
+<sub>Built and hardened one bug at a time. See <a href="#engineering-notes">Engineering Notes</a> for the receipts.</sub>
+</div>
