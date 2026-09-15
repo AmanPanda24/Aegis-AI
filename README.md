@@ -22,7 +22,7 @@ Python 3.12 · FastAPI (WebSocket + REST) · 57 tests passing · 98.44% held-out
 
 ## 🧭 What Aegis-AI Is (and Isn't)
 
-Aegis-AI is a **research/lab-grade network IDS**: real packet capture, real DPI, real ML trained on real labeled attack data, real Layer-2 rule-based detection — built to demonstrate and exercise the *full pipeline* end-to-end, not just one layer of it. It is not a hardened, production-scale replacement for Suricata, Snort, or Zeek. If you're evaluating this for something more serious than a lab, VM range, coursework, or portfolio project, read this table first.
+Aegis-AI is a **research/lab-grade network IDS**: real packet capture, real DPI, real ML trained on real labeled attack data, real Layer-2 rule-based detection built to demonstrate and exercise the *full pipeline* end-to-end, not just one layer of it. It is not a hardened, production-scale replacement for Suricata, Snort, or Zeek. If you're evaluating this for something more serious than a lab, VM range, coursework, or portfolio project, read this table first.
 
 ### How it compares
 
@@ -40,15 +40,15 @@ Aegis-AI is a **research/lab-grade network IDS**: real packet capture, real DPI,
 
 ### Where Aegis-AI genuinely adds value
 
-- **One pipeline, fully wired.** Capture → features → DPI → ML → L2 rules → scoring → dashboard, all in one readable codebase — useful as a reference for *how* an ML-based IDS pipeline fits together, not just a black box.
-- **Honest ML, not a demo model.** Trained on 243K real labeled flows from three public IDS datasets, with the exact per-class precision/recall reported — including the classes where it's weak (see [ML Models](#ml-models)).
-- **L2 visibility most lab tools skip.** ARP spoofing, MAC flooding, STP/CDP/DTP/VTP, VLAN hopping — attacks with no IP header at all, and therefore invisible to a purely flow-based pipeline.
+- **One pipeline, fully wired.** Capture → features → DPI → ML → L2 rules → scoring → dashboard, all in one readable codebase useful as a reference for *how* an ML-based IDS pipeline fits together, not just a black box.
+- **Honest ML, not a demo model.** Trained on 243K real labeled flows from three public IDS datasets, with the exact per-class precision/recall reported including the classes where it's weak (see [ML Models](#ml-models)).
+- **L2 visibility most lab tools skip.** ARP spoofing, MAC flooding, STP/CDP/DTP/VTP, VLAN hopping attacks with no IP header at all, and therefore invisible to a purely flow-based pipeline.
 
 ### What it deliberately doesn't do
 
-- No production-grade throughput or packet-processing performance — this is single-process Python, not a DPDK/kernel-bypass pipeline.
+- No production-grade throughput or packet-processing performance this is single-process Python, not a DPDK/kernel-bypass pipeline.
 - No signature/rule ecosystem like Suricata's ET Open or Snort community rules.
-- No claim that its detection thresholds are validated against your specific production network — see the known limitation under [ML Models](#ml-models).
+- No claim that its detection thresholds are validated against your specific production network see the known limitation under [ML Models](#ml-models).
 
 If any of the above changes, this README will be updated to reflect that rather than leaving the claim stale.
 
@@ -56,12 +56,12 @@ If any of the above changes, this README will be updated to reflect that rather 
 
 ### Why Aegis-AI?
 
-Most student/portfolio IDS projects fake the hard parts — port-guessing instead of real DPI, synthetic-only training data, an ML pipeline that silently no-ops when a model fails to load. Aegis-AI is built to *not* do that:
+Most student/portfolio IDS projects fake the hard parts port-guessing instead of real DPI, synthetic-only training data, an ML pipeline that silently no-ops when a model fails to load. Aegis-AI is built to *not* do that:
 
-- 🧠 **Really trained** on 243K real, labeled flows from three public intrusion-detection datasets — checksummed and bundled in-repo so the claim is verifiable, not just asserted (see [ML Models](#ml-models))
-- 🔍 **Really inspects packets** — HTTP/DNS/TLS-SNI parsed from raw payload bytes, not inferred from port numbers
-- 🛡️ **Sees below IP** — a dedicated Layer-2 sidecar catches ARP spoofing, MAC flooding, STP/CDP/DTP/VTP attacks and VLAN hopping, traffic that's invisible to a flow-based pipeline entirely
-- 🧪 **Audited, not just written** — every bug fix in [Engineering Notes](#engineering-notes) below was reproduced and verified (test, script, or live run), not fixed-and-assumed
+- 🧠 **Really trained** on 243K real, labeled flows from three public intrusion-detection datasets checksummed and bundled in-repo so the claim is verifiable, not just asserted (see [ML Models](#ml-models))
+- 🔍 **Really inspects packets** HTTP/DNS/TLS-SNI parsed from raw payload bytes, not inferred from port numbers
+- 🛡️ **Sees below IP** a dedicated Layer-2 sidecar catches ARP spoofing, MAC flooding, STP/CDP/DTP/VTP attacks and VLAN hopping, traffic that's invisible to a flow-based pipeline entirely
+- 🧪 **Audited, not just written** every bug fix in [Engineering Notes](#engineering-notes) below was reproduced and verified (test, script, or live run), not fixed-and-assumed
 
 
 ## Table of Contents
@@ -85,12 +85,12 @@ Most student/portfolio IDS projects fake the hard parts — port-guessing instea
 - Real-time packet capture (live via scapy, or built-in traffic simulator)
 - Deep Packet Inspection: real HTTP/DNS/TLS-SNI parsing, not port-guessing
 - IsolationForest anomaly detection + RandomForest attack classification
-- LSTM sequence analysis (optional, needs TensorFlow — see `requirements-optional.txt`; `ThreatScorer` automatically redistributes its scoring weight when it's not installed/trained, so this is genuinely optional, not silently broken)
+- LSTM sequence analysis (optional, needs TensorFlow see `requirements-optional.txt`; `ThreatScorer` automatically redistributes its scoring weight when it's not installed/trained, so this is genuinely optional, not silently broken)
 - Combined 0–100 threat score with risk levels
 - **Layer 2 monitoring**: ARP spoofing, MAC flooding, STP/CDP/DTP/VTP attacks, VLAN hopping
 - **Tor/VPN traffic detection** (`TOR_VPN` class, trained on CIC-Darknet2020)
 - Live WebSocket dashboard: threat gauge, attack distribution, flow table, alert feed, top talkers
-- Session-based "Clear All" — archives instead of deletes, browsable via `/api/sessions`
+- Session-based "Clear All" archives instead of deletes, browsable via `/api/sessions`
 - Alert export (JSON/CSV), API-key auth, rate limiting
 - Docker containerization
 
@@ -102,7 +102,7 @@ Most student/portfolio IDS projects fake the hard parts — port-guessing instea
 chmod +x run.sh
 ./run.sh
 ```
-This trains the ML models on synthetic data if `models/` is empty, then starts the server with an auto-generated API key printed to the console. Set `AEGIS_API_KEY` beforehand to pin a stable key across restarts. Models trained on real data (see [ML Models](#ml-models)) are already included in this repo — `run.sh` won't overwrite them.
+This trains the ML models on synthetic data if `models/` is empty, then starts the server with an auto-generated API key printed to the console. Set `AEGIS_API_KEY` beforehand to pin a stable key across restarts. Models trained on real data (see [ML Models](#ml-models)) are already included in this repo `run.sh` won't overwrite them.
 
 > **Note on repo size:** this repo bundles the actual training datasets (`data/raw_datasets/`, ~330MB compressed) so the "trained on real data" claim is independently verifiable rather than taken on trust. If you're cloning just to run the app, you don't need to touch that folder; it's only relevant if you want to verify or reproduce training.
 
@@ -114,7 +114,7 @@ export AEGIS_API_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(32
 
 python src/api/main.py
 ```
-Open **http://localhost:8000** — the dashboard reads the injected API key automatically.
+Open **http://localhost:8000** the dashboard reads the injected API key automatically.
 
 ### Docker
 ```bash
@@ -219,18 +219,18 @@ flowchart LR
     CLS --> RUN
 ```
 
-Three independently-published datasets, each with its own CICFlowMeter column-naming convention, are explicitly remapped (not fuzzy-matched — see [Engineering Notes](#engineering-notes)) onto the exact 55-feature schema the live app computes from packets, then merged into one shared 9-class taxonomy.
+Three independently-published datasets, each with its own CICFlowMeter column-naming convention, are explicitly remapped (not fuzzy-matched see [Engineering Notes](#engineering-notes)) onto the exact 55-feature schema the live app computes from packets, then merged into one shared 9-class taxonomy.
 
 ---
 
 ## ML Models
 
-The models in `models/` are trained on **243,028 real, labeled flows** combined from three independent public datasets — not synthetic data. The datasets themselves are bundled in the repo (`data/raw_datasets/`, compressed originals, ~330MB) specifically so this claim doesn't have to be taken on trust — see [`data/TRAINING_PROVENANCE.md`](data/TRAINING_PROVENANCE.md) for SHA-256 checksums of every archive and every extracted CSV, the exact training command used, and instructions to reproduce it yourself.
+The models in `models/` are trained on **243,028 real, labeled flows** combined from three independent public datasets not synthetic data. The datasets themselves are bundled in the repo (`data/raw_datasets/`, compressed originals, 330MB) specifically so this claim doesn't have to be taken on trust see [`data/TRAINING_PROVENANCE.md`](data/TRAINING_PROVENANCE.md) for SHA-256 checksums of every archive and every extracted CSV, the exact training command used, and instructions to reproduce it yourself.
 
 | Dataset | Rows used (capped 15K/class) | Contributes |
 |---|---|---|
-| [CIC-IDS2017](https://www.unb.ca/cic/datasets/ids-2017.html) | ~199K | BENIGN, DoS, DDoS, PortScan, BruteForce, WebAttack, Bot, Infiltration |
-| [CSE-CIC-IDS2018](https://www.unb.ca/cic/datasets/ids-2018.html) | ~29K | BENIGN, BruteForce (FTP/SSH) |
+| [CIC-IDS2017](https://www.unb.ca/cic/datasets/ids-2017.html) | 199K | BENIGN, DoS, DDoS, PortScan, BruteForce, WebAttack, Bot, Infiltration |
+| [CSE-CIC-IDS2018](https://www.unb.ca/cic/datasets/ids-2018.html) | 29K | BENIGN, BruteForce (FTP/SSH) |
 | [CIC-Darknet2020](https://www.unb.ca/cic/datasets/darknet2020.html) | 15K | BENIGN, **TOR_VPN** (new class) |
 
 **9-class taxonomy:** `BENIGN`, `DoS`, `DDoS`, `PortScan`, `BruteForce`, `WebAttack`, `Bot`, `Infiltration`, `TOR_VPN`.
@@ -249,11 +249,11 @@ The models in `models/` are trained on **243,028 real, labeled flows** combined 
 | TOR_VPN | 0.94 | 0.99 | 0.97 | 3,000 |
 | WebAttack | 0.92 | 0.98 | 0.95 | 436 |
 
-**Bot's low precision and Infiltration's reduced recall are data-scarcity artifacts, not bugs** — the source datasets contain only ~2K real Bot rows and 36 real Infiltration rows combined, across hundreds of thousands of BENIGN rows, so this is what genuine real-world attack-class imbalance looks like when reported honestly rather than hidden. Treat a `Bot` verdict as a lower-confidence signal, not a verdict; `Infiltration`/`WebAttack` would benefit most from more real-world data if this is retrained with a higher `--max-per-class`.
+**Bot's low precision and Infiltration's reduced recall are data-scarcity artifacts, not bugs** the source datasets contain only ~2K real Bot rows and 36 real Infiltration rows combined, across hundreds of thousands of BENIGN rows, so this is what genuine real-world attack-class imbalance looks like when reported honestly rather than hidden. Treat a `Bot` verdict as a lower-confidence signal, not a verdict; `Infiltration`/`WebAttack` would benefit most from more real-world data if this is retrained with a higher `--max-per-class`.
 
 The IsolationForest is fit on **BENIGN-only** flows (`contamination=0.01`) so it learns an actual baseline of normal traffic instead of treating a large slice of attack traffic as "normal". Both models are trained on **raw, unscaled** features to match exactly what `AnomalyDetector`/`AttackClassifier` feed them at inference time (see [Engineering Notes](#engineering-notes)).
 
-**Known limitation:** all three datasets are lab-captured traffic (2017–2020), not this project's own network. They validate the ML *plumbing* end-to-end and give a real, honestly-measured baseline — not a guarantee these thresholds are correct for a specific production network. Re-validate false-positive rate against real deployment traffic before trusting alerts unattended.
+**Known limitation:** all three datasets are lab-captured traffic (2017–2020), not this project's own network. They validate the ML *plumbing* end-to-end and give a real, honestly-measured baseline not a guarantee these thresholds are correct for a specific production network. Re-validate false-positive rate against real deployment traffic before trusting alerts unattended.
 
 ### Reproducing this training run
 
@@ -276,7 +276,7 @@ python scripts/train_models.py --dataset combined \
   --darknet-csv /path/to/darknet2020.csv \
   --max-per-class 60000
 ```
-Any of `--csv-dir` / `--cicids2018-dir` / `--cicids2018-csv` / `--darknet-dir` / `--darknet-csv` can be omitted or combined freely — the script trains on whatever subset you provide. `--max-per-class 0` disables capping (uses every row; much slower on a single core, and the full-file reads are chunked internally specifically so this doesn't exhaust memory on a constrained host — see [Engineering Notes](#engineering-notes)). Add new datasets by writing a `COLUMN_MAP` dict + a `categorize_*` label function, following the pattern of the three already in `scripts/train_models.py`.
+Any of `--csv-dir` / `--cicids2018-dir` / `--cicids2018-csv` / `--darknet-dir` / `--darknet-csv` can be omitted or combined freely the script trains on whatever subset you provide. `--max-per-class 0` disables capping (uses every row; much slower on a single core, and the full-file reads are chunked internally specifically so this doesn't exhaust memory on a constrained host see [Engineering Notes](#engineering-notes)). Add new datasets by writing a `COLUMN_MAP` dict + a `categorize_*` label function, following the pattern of the three already in `scripts/train_models.py`.
 
 ---
 
@@ -321,9 +321,9 @@ Aegis-AI/
 
 Suggested 3-VM lab for exercising the live-capture path end-to-end:
 
-- **VM1** — Aegis Engine (this system)
-- **VM2** — Victim (Ubuntu 22.04)
-- **VM3** — Attacker (Kali Linux)
+- **VM1**  Aegis Engine (this system)
+- **VM2**  Victim (Ubuntu 22.04)
+- **VM3**  Attacker (Kali Linux)
 
 Set `capture.mode: live` (and `l2.mode: live`) in `config.yaml` for real capture on VM deployment; both default to `simulation` otherwise.
 
@@ -339,28 +339,28 @@ Chronological log of concrete bugs found and fixed while hardening this project,
 Retrained the shipped models from scratch against the actual dataset archives, end-to-end on this machine, specifically so the training claim above isn't something you have to take on faith — `data/raw_datasets/` now ships the three original archives, and `data/TRAINING_PROVENANCE.md` records SHA-256 checksums for each archive and each extracted CSV plus the exact command used, so anyone can re-run it and compare.
 
 Two things came up during this:
-1. **The training script itself couldn't handle the memory-constrained host it was run on.** `load_flow_csv()` read each CSV fully into a `float64` DataFrame in one `pd.read_csv()` call; on a 1-CPU/3.9GB host this OOM-killed the process partway through the 135MB `Tuesday-WorkingHours.pcap` file, with no traceback (just a silently dead background process — caught by monitoring RSS over time, not by an error message). Fixed by switching to chunked reads (200K rows/chunk) with per-chunk `float32` downcasting and per-chunk class-capping, so peak memory is bounded by chunk size rather than file size. Re-ran successfully afterward (RSS stayed under ~560MB for the full combined run).
-2. **Checksum mismatch caught by the verification script itself.** While writing `data/TRAINING_PROVENANCE.md`, the SHA-256 values for `CIC-Darknet2020.zip` and `CSE-CIC-IDS2018.zip` were transposed — a copy-paste ordering mistake, not a data problem. `scripts/prepare_datasets.sh` (written specifically to make this reproducible) caught its own documentation being wrong on first run (`MISMATCH` on two of three files) before any training happened. Fixed by recomputing and correctly re-mapping both hashes; `prepare_datasets.sh` now runs clean.
+1. **The training script itself couldn't handle the memory-constrained host it was run on.** `load_flow_csv()` read each CSV fully into a `float64` DataFrame in one `pd.read_csv()` call; on a 1-CPU/3.9GB host this OOM-killed the process partway through the 135MB `Tuesday-WorkingHours.pcap` file, with no traceback (just a silently dead background process caught by monitoring RSS over time, not by an error message). Fixed by switching to chunked reads (200K rows/chunk) with per-chunk `float32` downcasting and per-chunk class-capping, so peak memory is bounded by chunk size rather than file size. Re-ran successfully afterward (RSS stayed under 560MB for the full combined run).
+2. **Checksum mismatch caught by the verification script itself.** While writing `data/TRAINING_PROVENANCE.md`, the SHA-256 values for `CIC-Darknet2020.zip` and `CSE-CIC-IDS2018.zip` were transposed a copy-paste ordering mistake, not a data problem. `scripts/prepare_datasets.sh` (written specifically to make this reproducible) caught its own documentation being wrong on first run (`MISMATCH` on two of three files) before any training happened. Fixed by recomputing and correctly re-mapping both hashes; `prepare_datasets.sh` now runs clean.
 
-Resulting run: 243,028 samples (capped 15K/class for tractability on that host), 98.44% held-out accuracy — see [ML Models](#ml-models) for the full per-class report. `Bot` (0.56 precision) and `Infiltration` (0.50 recall on 10 test rows) remain the known weak points, unchanged in character from the previous training run — they're a data-scarcity artifact of the source datasets, not something introduced by this retrain.
+Resulting run: 243,028 samples (capped 15K/class for tractability on that host), 98.44% held-out accuracy see [ML Models](#ml-models) for the full per-class report. `Bot` (0.56 precision) and `Infiltration` (0.50 recall on 10 test rows) remain the known weak points, unchanged in character from the previous training run they're a data-scarcity artifact of the source datasets, not something introduced by this retrain.
 </details>
 
 <details>
-<summary><b>Full remediation pass — 13 bugs fixed across capture, ML, L2, dashboard, and infra (57 tests, up from 35)</b></summary>
+<summary><b>Full remediation pass 13 bugs fixed across capture, ML, L2, dashboard, and infra (57 tests, up from 35)</b></summary>
 
 A full line-by-line audit of every file in `src/` (prompted by a direct question: "is the L2 sidecar real, and is this an excellent project") turned up 13 concrete bugs, all fixed and verified with an executed test or reproduction script, not just re-reading code:
 
-- **Flow-assembly bug (the big one).** `PacketCapture.flows` was keyed by each packet's *literal* `(src_ip,dst_ip,src_port,dst_port,protocol)`, so a response packet (swapped src/dst/ports) could never land in the same bucket as its request — every flow was structurally one-directional, silently zeroing `total_bwd_packets`/`down_up_ratio` for every flow ever produced. Worse: flows only reached the ML/DPI pipeline once they had `>=2` packets, so single-packet flows (a lone scan probe, one DNS query) just expired unseen 60s later. Measured impact before the fix: 0–29% of packets in each simulated attack scenario ever reached detection (port scan and slow-APT scenarios: **0%**). Fixed with a canonical (direction-independent) flow key plus idle-timeout-based finalization; now **100%** across every scenario.
+- **Flow-assembly bug (the big one).** `PacketCapture.flows` was keyed by each packet's *literal* `(src_ip,dst_ip,src_port,dst_port,protocol)`, so a response packet (swapped src/dst/ports) could never land in the same bucket as its request — every flow was structurally one-directional, silently zeroing `total_bwd_packets`/`down_up_ratio` for every flow ever produced. Worse: flows only reached the ML/DPI pipeline once they had `>=2` packets, so single-packet flows (a lone scan probe, one DNS query) just expired unseen 60s later. Measured impact before the fix: 0-29% of packets in each simulated attack scenario ever reached detection (port scan and slow-APT scenarios: **0%**). Fixed with a canonical (direction-independent) flow key plus idle-timeout-based finalization; now **100%** across every scenario.
 - **Stored XSS chained with default wildcard CORS.** DPI-parsed, attacker-controlled fields (HTTP Host, DNS query, TLS SNI) were written into the dashboard's `innerHTML` unescaped, and the default `cors_origins: ["*"]` meant a stolen API key could be replayed from anywhere. Fixed with an `escapeHtml()` helper on every DPI-derived field and a same-origin CORS default.
-- **No real port-scan detection existed anywhere** — the only "scan" heuristic needed `>10` packets in a *single* flow, structurally incapable of seeing "one source, many ports". Added `src/processing/scan_detector.py`, a real cross-flow detector.
-- **VLAN-tagged trunk frames corrupted STP/CDP/VTP/DTP parsing** (hardcoded 14-byte Ethernet offset, broken by any 802.1Q tag) — not a clean failure, confirmed via a real scapy frame to produce plausible-looking garbage field values. Fixed to account for actual tag count.
-- **STP baseline permanently poisoned after one hijack** — a legitimate root re-election could never be relearned once an attacker's forged root became the baseline. Added confirmation-based recovery.
+- **No real port-scan detection existed anywhere** the only "scan" heuristic needed `>10` packets in a *single* flow, structurally incapable of seeing "one source, many ports". Added `src/processing/scan_detector.py`, a real cross-flow detector.
+- **VLAN-tagged trunk frames corrupted STP/CDP/VTP/DTP parsing** (hardcoded 14-byte Ethernet offset, broken by any 802.1Q tag) not a clean failure, confirmed via a real scapy frame to produce plausible-looking garbage field values. Fixed to account for actual tag count.
+- **STP baseline permanently poisoned after one hijack** a legitimate root re-election could never be relearned once an attacker's forged root became the baseline. Added confirmation-based recovery.
 - **Unbounded memory growth** in the L2 flood detectors, exactly under the sustained-flood traffic they exist to catch. Added hourly pruning.
 - **LSTM's fallback silently carried a fixed 20% weight** in every threat score despite being an untrained heuristic with no temporal meaning in any default install (no TensorFlow in `requirements.txt`). `ThreatScorer` now drops its weight to 0 unless a real trained model is loaded; the fallback itself was also fixed to measure cross-timestep variance instead of meaningless intra-vector variance.
-- **WebSocket told unauthenticated clients "connected" before rejecting them** — `accept()` was called before the API-key check. Reordered.
-- **SQLite lock contention risk** under concurrent writers (capture/L2/API all hitting one file-based DB) — no WAL mode, no busy timeout. Fixed; stress-tested at 500 concurrent writes across 10 threads with zero errors afterward.
+- **WebSocket told unauthenticated clients "connected" before rejecting them** `accept()` was called before the API-key check. Reordered.
+- **SQLite lock contention risk** under concurrent writers (capture/L2/API all hitting one file-based DB) no WAL mode, no busy timeout. Fixed; stress-tested at 500 concurrent writes across 10 threads with zero errors afterward.
 - **IPv4-only live capture** — IPv6/ICMPv6 traffic was invisible with no error. Added extraction support and updated the default BPF filter.
-- Two more found *while fixing the above*: a scikit-learn version skew between `requirements.txt` (1.5.2) and the actually-shipped `.pkl` models (pickled with 1.8.0), and a stray backtick in a comment this pass itself added, which broke `app.js`'s syntax — caught by `node --check` before it shipped.
+- Two more found *while fixing the above*: a scikit-learn version skew between `requirements.txt` (1.5.2) and the actually-shipped `.pkl` models (pickled with 1.8.0), and a stray backtick in a comment this pass itself added, which broke `app.js`'s syntax caught by `node --check` before it shipped.
 
 Full writeup with before/after evidence for each: see the project's `CHANGELOG_SECURITY_FIXES.md`.
 </details>
@@ -368,16 +368,16 @@ Full writeup with before/after evidence for each: see the project's `CHANGELOG_S
 <details>
 <summary><b>L2 attack surface audit: ARP spoofing never fired, STP flood alerts spammed</b></summary>
 
-Asked directly "is the L2 attack surface working correctly" - rather than assume yes, tested it: fed each of the 7 simulated attack scenarios directly into `L2Analyzer.analyze()` in isolation and checked which alert category came out. Two real bugs surfaced:
+Asked directly "is the L2 attack surface working correctly" rather than assume yes, tested it: fed each of the 7 simulated attack scenarios directly into `L2Analyzer.analyze()` in isolation and checked which alert category came out. Two real bugs surfaced:
 
-1. **`ARP_SPOOFING` never fired — confirmed 0 alerts across 500 simulated scenario iterations (33+ arp_spoof runs).** The detection logic itself was correct (proven by manually seeding a legitimate baseline reply and re-running — it fired immediately, exactly as designed). The bug was upstream: the `normal_l2` simulation scenario only ever sent ARP *requests* for the gateway, never a *reply*, so `L2Analyzer.arp_table` never learned a trustworthy IP→MAC baseline before an attack occurred. The attacker's own first forged reply was silently accepted as "ground truth" (classic trust-on-first-use), and it could never conflict with itself afterward. Fixed by having `normal_l2` also emit a legitimate gratuitous ARP reply from the gateway. Verified live end-to-end afterward: 7 genuine `ARP_SPOOFING` alerts (threat_score 92, correctly tagged `layer: "L2"`) over a 60-second run of the real server.
-2. **`STP_TC_FLOOD` alert-spammed — 209 alerts vs. only 1 `STP_ROOT_HIJACK`** from a comparable number of attack occurrences in the same test. Unlike `CDP_FLOOD` (clears its window after firing) and `MAC_FLOODING` (has an explicit cooldown timer), `STP_TC_FLOOD` had no reset at all, so it re-fired on nearly every qualifying event once the 5-events/10s threshold was crossed, drowning out other categories in the Attack Distribution chart. Fixed by adding the same cooldown pattern already used elsewhere in this file. Re-ran the same 500-iteration test after both fixes: `ARP_SPOOFING: 64`, `STP_ROOT_HIJACK: 1`, `STP_TC_FLOOD: 1` — proportionate to actual attack frequency, and still **zero false positives** across 30 rounds of pure benign traffic.
+1. **`ARP_SPOOFING` never fired confirmed 0 alerts across 500 simulated scenario iterations (33+ arp_spoof runs).** The detection logic itself was correct (proven by manually seeding a legitimate baseline reply and re-running it fired immediately, exactly as designed). The bug was upstream: the `normal_l2` simulation scenario only ever sent ARP *requests* for the gateway, never a *reply*, so `L2Analyzer.arp_table` never learned a trustworthy IP→MAC baseline before an attack occurred. The attacker's own first forged reply was silently accepted as "ground truth" (classic trust-on-first-use), and it could never conflict with itself afterward. Fixed by having `normal_l2` also emit a legitimate gratuitous ARP reply from the gateway. Verified live end-to-end afterward: 7 genuine `ARP_SPOOFING` alerts (threat_score 92, correctly tagged `layer: "L2"`) over a 60-second run of the real server.
+2. **`STP_TC_FLOOD` alert-spammed — 209 alerts vs. only 1 `STP_ROOT_HIJACK`** from a comparable number of attack occurrences in the same test. Unlike `CDP_FLOOD` (clears its window after firing) and `MAC_FLOODING` (has an explicit cooldown timer), `STP_TC_FLOOD` had no reset at all, so it re-fired on nearly every qualifying event once the 5-events/10s threshold was crossed, drowning out other categories in the Attack Distribution chart. Fixed by adding the same cooldown pattern already used elsewhere in this file. Re-ran the same 500-iteration test after both fixes: `ARP_SPOOFING: 64`, `STP_ROOT_HIJACK: 1`, `STP_TC_FLOOD: 1` proportionate to actual attack frequency, and still **zero false positives** across 30 rounds of pure benign traffic.
 </details>
 
 <details>
 <summary><b>Attack Distribution chart was blind to Layer-2 detections</b></summary>
 
-The dashboard's "Attack Distribution" chart (`db.get_stats()`'s `attack_distribution` query) only ever scanned the `flows` table's `attack_type` column. L2 alerts (ARP spoofing, MAC flooding, STP/CDP/DTP/VTP attacks, VLAN hopping) have **no corresponding row in `flows`** — that table only tracks IP-layer traffic — so every L2 detection was completely invisible in that chart, even though it showed up correctly in the Alerts panel (tagged `layer: "L2"`). Confirmed the chart itself has no random/placeholder data (Chart.js is initialized with empty `labels`/`data` and only ever populated from real `/api/stats` responses) — the gap was purely server-side under-counting.
+The dashboard's "Attack Distribution" chart (`db.get_stats()`'s `attack_distribution` query) only ever scanned the `flows` table's `attack_type` column. L2 alerts (ARP spoofing, MAC flooding, STP/CDP/DTP/VTP attacks, VLAN hopping) have **no corresponding row in `flows`** — that table only tracks IP-layer traffic so every L2 detection was completely invisible in that chart, even though it showed up correctly in the Alerts panel (tagged `layer: "L2"`). Confirmed the chart itself has no random/placeholder data (Chart.js is initialized with empty `labels`/`data` and only ever populated from real `/api/stats` responses) the gap was purely server-side under-counting.
 
 Fixed by merging in a second query over `alerts WHERE layer = 'L2'`, summed by `attack_type` alongside the existing flow-based counts. Verified with a direct test: inserted 1 DDoS flow + 2 ARP Spoofing L2 alerts, confirmed `get_stats()['attack_distribution']` includes both. Also expanded the chart's color palette from 8 to 16 colors, since L2's 8 distinct alert titles plus 8 non-BENIGN ML classes can now legitimately co-occur.
 </details>
@@ -385,29 +385,29 @@ Fixed by merging in a second query over `alerts WHERE layer = 'L2'`, summed by `
 <details>
 <summary><b>ML models retrained on 3 combined real datasets (882K flows, 9 classes)</b></summary>
 
-Extended training from CIC-IDS2017-only to also include CSE-CIC-IDS2018 (additional BruteForce diversity) and CIC-Darknet2020 (new `TOR_VPN` class). Each dataset uses a different CICFlowMeter column-naming convention (e.g. `"Total Fwd Packets"` vs `"Tot Fwd Pkts"` vs `"Total Fwd Packet"` for the same feature) — these are mapped via three explicit, hand-verified dicts (`CICIDS2017_COLUMN_MAP` / `CICIDS2018_COLUMN_MAP` / `DARKNET2020_COLUMN_MAP`) rather than a fuzzy/heuristic normalizer, since a silent column mis-map in a security model fails quietly and dangerously. `scripts/train_models.py` was refactored around one generic `load_flow_csv()` shared by all three, parametrized by column map + a per-dataset label-categorization function. See [ML Models](#ml-models) above for full results.
+Extended training from CIC-IDS2017-only to also include CSE-CIC-IDS2018 (additional BruteForce diversity) and CIC-Darknet2020 (new `TOR_VPN` class). Each dataset uses a different CICFlowMeter column-naming convention (e.g. `"Total Fwd Packets"` vs `"Tot Fwd Pkts"` vs `"Total Fwd Packet"` for the same feature) these are mapped via three explicit, hand-verified dicts (`CICIDS2017_COLUMN_MAP` / `CICIDS2018_COLUMN_MAP` / `DARKNET2020_COLUMN_MAP`) rather than a fuzzy/heuristic normalizer, since a silent column mis-map in a security model fails quietly and dangerously. `scripts/train_models.py` was refactored around one generic `load_flow_csv()` shared by all three, parametrized by column map + a per-dataset label-categorization function. See [ML Models](#ml-models) above for full results.
 </details>
 
 <details>
 <summary><b>ML models trained on real CIC-IDS2017 traffic (superseded by the combined training above)</b></summary>
 
 Two bugs were found and fixed while first wiring up real-data training:
-1. **Feature-schema mismatch** — the original loader dumped all 78 raw CIC-IDS2017 CSV columns in file order, but `FeatureExtractor` produces 55 differently-named features in its own order at inference time. Fixed with an explicit column mapping.
-2. **Train/inference scaling mismatch** — training fit a `StandardScaler` and trained on scaled data, but `AnomalyDetector`/`AttackClassifier` call `.predict()` directly on the *raw* feature vector at inference — the scaler was saved but never applied. Fixed by training both models on raw, unscaled features (tree-based models don't need scaling anyway).
+1. **Feature-schema mismatch** the original loader dumped all 78 raw CIC-IDS2017 CSV columns in file order, but `FeatureExtractor` produces 55 differently-named features in its own order at inference time. Fixed with an explicit column mapping.
+2. **Train/inference scaling mismatch** training fit a `StandardScaler` and trained on scaled data, but `AnomalyDetector`/`AttackClassifier` call `.predict()` directly on the *raw* feature vector at inference the scaler was saved but never applied. Fixed by training both models on raw, unscaled features (tree-based models don't need scaling anyway).
 </details>
 
 <details>
 <summary><b>Gauge/alerts freezing when switching capture mode</b></summary>
 
 Two compounding bugs:
-1. **Unguarded concurrent dict access** — `PacketCapture.flows` is written by the capture thread and read/deleted by the asyncio event loop thread with no lock, unlike `L2Capture` which already had one. A race could raise `RuntimeError: dictionary changed size during iteration` *inside the background capture thread*, silently killing it — `state.flows` then stops receiving new entries, so the gauge/alert counters freeze on stale data. Most likely right after a mode switch, when a fresh capture thread bursts many new flow keys. Reproduced directly (15/15 trials failed on the old unlocked logic, 0/15 on the fixed `RLock`-guarded version) and fixed.
-2. **Blocking the event loop during the switch** — `POST /api/capture/mode` called `switch_mode()` (which blocks on `thread.join(timeout=2)`) directly inside an `async def` handler, freezing the *entire* event loop — including the stats broadcaster — for up to 2s per switch. Fixed by running the switch via `asyncio.to_thread(...)`.
+1. **Unguarded concurrent dict access** `PacketCapture.flows` is written by the capture thread and read/deleted by the asyncio event loop thread with no lock, unlike `L2Capture` which already had one. A race could raise `RuntimeError: dictionary changed size during iteration` *inside the background capture thread*, silently killing it `state.flows` then stops receiving new entries, so the gauge/alert counters freeze on stale data. Most likely right after a mode switch, when a fresh capture thread bursts many new flow keys. Reproduced directly (15/15 trials failed on the old unlocked logic, 0/15 on the fixed `RLock`-guarded version) and fixed.
+2. **Blocking the event loop during the switch** `POST /api/capture/mode` called `switch_mode()` (which blocks on `thread.join(timeout=2)`) directly inside an `async def` handler, freezing the *entire* event loop — including the stats broadcaster — for up to 2s per switch. Fixed by running the switch via `asyncio.to_thread(...)`.
 </details>
 
 <details>
 <summary><b>"Clear All" only reset the frontend, not the backend</b></summary>
 
-The dashboard's Clear All button emptied a few local JS arrays and never called the backend at all — the gauge/"Threats Detected" KPI are driven by server-side counters that were never touched, so the next periodic stats broadcast (~0.5–1s later) silently repopulated them with the old values. Fixed with a real session model: `POST /api/session/clear` archives the current session (nothing is deleted — old data keeps its `session_id` and stays queryable via `GET /api/sessions`) and starts a fresh, genuinely empty one; every read endpoint defaults to the current session only.
+The dashboard's Clear All button emptied a few local JS arrays and never called the backend at all the gauge/"Threats Detected" KPI are driven by server-side counters that were never touched, so the next periodic stats broadcast (0.5–1s later) silently repopulated them with the old values. Fixed with a real session model: `POST /api/session/clear` archives the current session (nothing is deleted old data keeps its `session_id` and stays queryable via `GET /api/sessions`) and starts a fresh, genuinely empty one; every read endpoint defaults to the current session only.
 </details>
 
 <details>
@@ -435,9 +435,9 @@ The rate limiter and API key store are in-process/in-memory — fine for a local
 Aegis-AI is built for **lab environments, coursework, and authorized security research** — the [Deployment / VM Lab](#deployment--vm-lab) section above describes the intended setup (isolated VMs you control).
 
 - Only run live capture (`capture.mode: live`) against networks and hosts you own or have explicit written permission to monitor.
-- This is a detection/analysis tool, not an exploit tool — it doesn't send attack traffic itself, but running it against a network you don't control to observe real attacker behavior may still violate local law or an AUP.
-- The datasets used for training (CIC-IDS2017, CSE-CIC-IDS2018, CIC-Darknet2020) are lab-captured, third-party research data — see [`data/TRAINING_PROVENANCE.md`](data/TRAINING_PROVENANCE.md) for their provenance and license terms.
-- No warranty of detection accuracy for production traffic — see the known limitation under [ML Models](#ml-models).
+- This is a detection/analysis tool, not an exploit tool it doesn't send attack traffic itself, but running it against a network you don't control to observe real attacker behavior may still violate local law or an AUP.
+- The datasets used for training (CIC-IDS2017, CSE-CIC-IDS2018, CIC-Darknet2020) are lab-captured, third-party research data see [`data/TRAINING_PROVENANCE.md`](data/TRAINING_PROVENANCE.md) for their provenance and license terms.
+- No warranty of detection accuracy for production traffic see the known limitation under [ML Models](#ml-models).
 
 ---
 
