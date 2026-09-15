@@ -1,0 +1,100 @@
+aegis:
+  project_name: "Aegis-AI Prototype"
+  version: "1.0.0"
+
+  capture:
+    mode: "simulation"
+    interface: "eth0"
+    pcap_file: ""
+    pcap_dir: "./data/pcaps"
+    filter: "tcp or udp or icmp or ip6"
+    max_packets: 10000
+    promiscuous: true
+
+  processing:
+    flow_timeout: 60
+    flow_idle_timeout_seconds: 2.0
+    batch_size: 100
+    max_flows_in_memory: 1000
+
+  ml:
+    models_dir: "./models"
+    anomaly_threshold: 0.6
+    threat_threshold: 75
+    use_xgboost: false
+    use_lstm: false
+    sequence_window: 10
+
+  api:
+    host: "0.0.0.0"
+    port: 8000
+    dashboard_dir: "./src/dashboard"
+    # Was ["*"]. main.py correctly disables allow_credentials when the
+    # origin list is a wildcard, which closes the cookie-based abuse
+    # path - but a wildcard origin still lets ANY website's JS read the
+    # response to a plain (non-credentialed) fetch() carrying a stolen
+    # X-API-Key header, e.g. one exfiltrated via a dashboard XSS. Default
+    # to same-origin only; add specific origins here if you're hosting
+    # the dashboard separately from the API.
+    cors_origins: ["http://localhost:8000", "http://127.0.0.1:8000"]
+
+  dashboard:
+    live_packet_sample_size: 15
+    default_flow_page_size: 50
+    default_packet_page_size: 100
+
+  database:
+    type: "sqlite"
+    path: "./data/aegis.db"
+
+  alerting:
+    enabled: true
+    formats: ["json", "csv"]
+    webhook_url: ""
+    email_enabled: false
+
+  simulation:
+    enabled: true
+    scenarios:
+      - normal
+      - port_scan
+      - dos
+      - brute_force
+      - data_exfil
+      - slow_apt
+    interval_ms: 1000
+
+  # Cross-flow reconnaissance detection (port scans / host sweeps). This
+  # is intentionally separate from ml.* and cannot be a per-flow feature -
+  # see src/processing/scan_detector.py for why.
+  scan_detection:
+    window_seconds: 10
+    distinct_ports_threshold: 15
+    distinct_hosts_threshold: 15
+    connection_rate_threshold: 30
+    alert_cooldown_seconds: 10
+
+  # Layer 2 monitoring: catches non-IP attack tooling (e.g. Yersinia)
+  # that the IP-flow pipeline above can never see, since it operates on
+  # ARP/STP/CDP/DTP/VTP frames and raw 802.1Q tags instead of IP flows.
+  l2:
+    enabled: true
+    mode: "simulation"          # "simulation" or "live"
+    interface: "eth0"
+    thresholds:
+      mac_flood_new_macs_per_window: 40
+      mac_flood_window_seconds: 10
+      cdp_flood_count_per_window: 20
+      cdp_flood_window_seconds: 10
+      stp_topology_change_count: 5
+      stp_topology_change_window_seconds: 10
+    simulation:
+      scenarios:
+        - normal_l2
+        - arp_spoof
+        - mac_flood
+        - stp_attack
+        - cdp_flood
+        - dtp_negotiation
+        - vtp_attack
+        - vlan_double_tag
