@@ -1,0 +1,19 @@
+# Optional dependency for the real LSTM sequence detector
+# (src/ml/lstm_detector.py).
+#
+# TensorFlow is deliberately NOT in requirements.txt: it's a very heavy
+# dependency (100s of MB) that most people evaluating/running Aegis-AI
+# in simulation mode don't need. Without it installed, ThreatScorer
+# automatically drops the sequence component's weight to 0 and
+# redistributes it across the anomaly/classification components (see
+# src/ml/threat_scorer.py) - the tool works correctly, just without the
+# sequence-based signal.
+#
+# To enable the real LSTM:
+#   pip install -r requirements-optional.txt --break-system-packages
+#   python scripts/train_models.py --dataset <cicids2017|cicids2018|darknet2020>
+#
+# Pinned to match the TF version this project's LSTM architecture
+# (src/ml/lstm_detector.py._build_model, tf.keras Sequential/LSTM/Dense/
+# Dropout) was written against. Bump deliberately, not implicitly.
+tensorflow==2.17.0

@@ -1,0 +1,23 @@
+# Pinned to exact versions for reproducible installs (the prototype
+# previously used unbounded ">=" ranges, meaning a fresh `pip install`
+# today vs. six months from now could silently pull different, untested
+# major/minor versions). Bump these deliberately, not implicitly.
+#
+# scikit-learn MUST match the version the shipped models/*.pkl files were
+# trained/pickled with (1.8.0) - a mismatched version loads with an
+# InconsistentVersionWarning and no guarantee of correct behavior across
+# a multi-minor-version gap. If you retrain the models with a different
+# scikit-learn version, update this pin to match.
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+websockets==13.1
+scapy==2.6.1
+scikit-learn==1.8.0
+numpy==1.26.4
+pandas==2.2.3
+pyyaml==6.0.2
+aiofiles==24.1.0
+python-multipart==0.0.12
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.27.2
